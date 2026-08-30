@@ -190,11 +190,144 @@
             0% { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-100px); opacity: 0; }
         }
+
+        /* Settings UI */
+        #settings-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--card-bg);
+            border: none;
+            color: var(--text-main);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        #settings-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 20;
+            border-radius: 2rem;
+            padding: 2rem;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-color);
+            padding: 2rem;
+            border-radius: 1.5rem;
+            width: 100%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-row {
+            margin: 1.5rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-row label {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .settings-row input[type="range"] {
+            width: 60%;
+            accent-color: var(--accent-color);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 22px;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--accent-color); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        #close-settings {
+            margin-top: 2rem;
+            background: var(--accent-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
+        <button id="settings-toggle">⚙️</button>
+
+        <div id="settings-modal">
+            <div class="modal-content">
+                <h2 style="margin-top:0">Settings</h2>
+
+                <div class="settings-row">
+                    <label>Sound</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="settings-row">
+                    <label>Music</label>
+                    <input type="range" id="music-volume" min="0" max="1" step="0.1" value="0.3">
+                </div>
+
+                <div class="settings-row">
+                    <label>SFX</label>
+                    <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
+                </div>
+
+                <button id="close-settings">Close</button>
+            </div>
+        </div>
+
         <div id="sale-banner">🔥 50% OFF! (<span id="sale-timer">0</span>s) 🔥</div>
         
         <div id="score-container">$<span id="money">0</span></div>
@@ -202,6 +335,7 @@
         <div id="stats">
             <div><span style="color: var(--text-muted)">/sec:</span> <span id="mps-display">0</span></div>
             <div><span style="color: var(--text-muted)">/click:</span> <span id="mpc-display">1</span></div>
+            <div style="text-align: right;"><span style="color: var(--text-muted)">Mult:</span> <span id="prestige-mult-display">x1.0</span></div>
         </div>
 
         <div id="money-icon">💰</div>
@@ -235,10 +369,152 @@
                 </div>
                 <span class="upgrade-cost">$2500</span>
             </button>
+            <button class="upgrade-btn" id="upgrade-real_estate">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Real Estate</span>
+                    <span class="upgrade-subtext">+$100/sec</span>
+                </div>
+                <span class="upgrade-cost">$15000</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-hedge_fund">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Hedge Fund</span>
+                    <span class="upgrade-subtext">+$500/sec</span>
+                </div>
+                <span class="upgrade-cost">$100000</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-monopoly">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Monopoly</span>
+                    <span class="upgrade-subtext">+$5000/sec</span>
+                </div>
+                <span class="upgrade-cost">$1000000</span>
+            </button>
+        </div>
+
+        <div id="prestige-container" style="margin-top: 2rem; display: none;">
+            <button id="btn-prestige" style="padding: 1rem 2rem; background: var(--accent-color); color: #000; border: none; border-radius: 1rem; font-weight: bold; cursor: pointer; width: 100%;">
+                Buyout for <span id="prestige-gain">$0</span> (Bonus: x<span id="prestige-mult">1</span>)
+            </button>
         </div>
     </div>
 
     <script>
+        /** AUDIO ENGINE **/
+        class SoundManager {
+            constructor() {
+                this.ctx = null;
+                this.masterGain = null;
+                this.sfxGain = null;
+                this.musicGain = null;
+                this.isInitialized = false;
+            }
+
+            init() {
+                if (this.isInitialized) return;
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.masterGain = this.ctx.createGain();
+                this.sfxGain = this.ctx.createGain();
+                this.musicGain = this.ctx.createGain();
+
+                this.sfxGain.connect(this.masterGain);
+                this.musicGain.connect(this.masterGain);
+                this.masterGain.connect(this.ctx.destination);
+
+                this.sfxGain.gain.value = 0.7;
+                this.musicGain.gain.value = 0.3;
+
+                this.isInitialized = true;
+                this.startMusic();
+            }
+
+            playClick() {
+                if (!this.isInitialized) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.sfxGain);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playMoney() {
+                if (!this.isInitialized) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(this.sfxGain);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            }
+
+            playBuyout() {
+                if (!this.isInitialized) return;
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    const t = this.ctx.currentTime + i * 0.12;
+                    osc.frequency.setValueAtTime(freq, t);
+                    gain.gain.setValueAtTime(0.001, t);
+                    gain.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                    osc.connect(gain);
+                    gain.connect(this.sfxGain);
+                    osc.start(t);
+                    osc.stop(t + 0.5);
+                });
+            }
+
+            startMusic() {
+                if (!this.isInitialized) return;
+                const playTone = (freq, detune, duration) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    osc.detune.setValueAtTime(detune, this.ctx.currentTime);
+
+                    gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.03, this.ctx.currentTime + duration/2);
+                    gain.gain.linearRampToValueAtTime(0.02, this.ctx.currentTime + duration);
+
+                    osc.connect(gain);
+                    gain.connect(this.musicGain);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                };
+
+                const loop = () => {
+                    if (!this.isInitialized) return;
+                    playTone(110, 0, 4);
+                    playTone(115, 0, 4);
+                    setTimeout(() => loop(), 4000);
+                };
+                loop();
+            }
+
+            updateVolumes(sfxVol, musicVol, soundEnabled) {
+                if (!this.isInitialized) return;
+                const multiplier = soundEnabled ? 1 : 0;
+                this.sfxGain.gain.setTargetAtTime(sfxVol * multiplier, this.ctx.currentTime, 0.1);
+                this.musicGain.gain.setTargetAtTime(musicVol * multiplier, this.ctx.currentTime, 0.1);
+            }
+        }
+
+        const sounds = new SoundManager();
+
         let state = {
             money: 0,
             mpc: 1,
@@ -247,8 +523,13 @@
                 'training': 0,
                 'worker': 0,
                 'manager': 0,
-                'bank': 0
+                'bank': 0,
+                'real_estate': 0,
+                'hedge_fund': 0,
+                'monopoly': 0
             },
+            prestigeLevel: 0,
+            prestigeMultiplier: 1,
             isSaleActive: false,
             saleDiscount: 0.5,
             saleTimeRemaining: 0
@@ -258,7 +539,10 @@
             { id: 'training', baseCost: 15, type: 'mpc', value: 1 },
             { id: 'worker', baseCost: 100, type: 'mps', value: 1 },
             { id: 'manager', baseCost: 500, type: 'mps', value: 5 },
-            { id: 'bank', baseCost: 2500, type: 'mps', value: 25 }
+            { id: 'bank', baseCost: 2500, type: 'mps', value: 25 },
+            { id: 'real_estate', baseCost: 15000, type: 'mps', value: 100 },
+            { id: 'hedge_fund', baseCost: 100000, type: 'mps', value: 500 },
+            { id: 'monopoly', baseCost: 1000000, type: 'mps', value: 5000 }
         ];
 
         const moneyEl = document.getElementById('money');
@@ -267,6 +551,11 @@
         const moneyIconEl = document.getElementById('money-icon');
         const saleBanner = document.getElementById('sale-banner');
         const saleTimerEl = document.getElementById('sale-timer');
+        const prestigeContainer = document.getElementById('prestige-container');
+        const btnPrestige = document.getElementById('btn-prestige');
+        const prestigeGainEl = document.getElementById('prestige-gain');
+        const prestigeMultEl = document.getElementById('prestige-mult');
+        const prestigeMultDisplayEl = document.getElementById('prestige-mult-display');
 
         function getEffectiveCost(upg) {
             const baseCost = upg.baseCost * Math.pow(1.2, state.upgradesOwned[upg.id]);
@@ -283,10 +572,24 @@
             setTimeout(() => el.remove(), 800);
         }
 
+        function getPrestigeGain() {
+            return Math.floor(Math.sqrt(state.money / 10000));
+        }
+
         function updateUI() {
             moneyEl.textContent = Math.floor(state.money).toLocaleString();
-            mpsEl.textContent = state.mps.toFixed(1);
-            mpcEl.textContent = state.mpc.toFixed(1);
+            mpsEl.textContent = (state.mps * state.prestigeMultiplier).toFixed(1);
+            mpcEl.textContent = (state.mpc * state.prestigeMultiplier).toFixed(1);
+
+            const gain = getPrestigeGain();
+            if (gain >= 1) {
+                prestigeContainer.style.display = 'block';
+                prestigeGainEl.textContent = gain.toLocaleString();
+                prestigeMultEl.textContent = (state.prestigeMultiplier + gain).toFixed(1);
+            } else {
+                prestigeContainer.style.display = 'none';
+            }
+            prestigeMultDisplayEl.textContent = `x${state.prestigeMultiplier.toFixed(1)}`;
 
             upgrades.forEach(upg => {
                 const btn = document.getElementById(`upgrade-${upg.id}`);
@@ -313,8 +616,13 @@
         }
 
         moneyIconEl.addEventListener('click', (e) => {
-            state.money += state.mpc;
-            createFloatingText(e.clientX, e.clientY, state.mpc);
+            const effectiveMpc = state.mpc * state.prestigeMultiplier;
+            state.money += effectiveMpc;
+            createFloatingText(e.clientX, e.clientY, Math.floor(effectiveMpc));
+            sounds.playClick();
+            if (navigator.vibrate) {
+                navigator.vibrate(15);
+            }
             updateUI();
         });
 
@@ -331,6 +639,10 @@
                     } else {
                         state.mps += upg.value;
                     }
+                    sounds.playMoney();
+                    if (navigator.vibrate) {
+                        navigator.vibrate(10);
+                    }
                     updateUI();
                 }
             });
@@ -338,10 +650,32 @@
 
         setInterval(() => {
             if (state.mps > 0) {
-                state.money += state.mps / 10;
+                state.money += (state.mps * state.prestigeMultiplier) / 10;
                 updateUI();
             }
         }, 100);
+
+        function triggerBuyout() {
+            const gain = getPrestigeGain();
+            if (gain < 1) return;
+            if (!confirm(`Buy out and reset for +${gain} bonus? (New multiplier: x${(state.prestigeMultiplier + gain).toFixed(1)})`)) return;
+
+            state.money = 0;
+            state.mpc = 1;
+            state.mps = 0;
+            state.prestigeLevel++;
+            state.prestigeMultiplier += gain;
+            for (const key in state.upgradesOwned) {
+                state.upgradesOwned[key] = 0;
+            }
+            sounds.playBuyout();
+            if (navigator.vibrate) {
+                navigator.vibrate([30, 50, 60]);
+            }
+            updateUI();
+        }
+
+        btnPrestige.addEventListener('click', triggerBuyout);
 
         function triggerSale() {
             if (state.isSaleActive) return;
@@ -370,6 +704,43 @@
         }
 
         scheduleNextSale();
+
+        // UI elements for settings
+        const settingsBtn = document.getElementById('settings-toggle');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettings = document.getElementById('close-settings');
+        const soundToggle = document.getElementById('sound-toggle');
+        const musicVolSlider = document.getElementById('music-volume');
+        const sfxVolSlider = document.getElementById('sfx-volume');
+
+        // Settings Logic
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        function updateSoundSettings() {
+            sounds.updateVolumes(
+                parseFloat(sfxVolSlider.value),
+                parseFloat(musicVolSlider.value),
+                soundToggle.checked
+            );
+        }
+
+        soundToggle.addEventListener('change', updateSoundSettings);
+        musicVolSlider.addEventListener('input', updateSoundSettings);
+        sfxVolSlider.addEventListener('input', updateSoundSettings);
+
+        // Initialize Audio on first click
+        document.addEventListener('click', () => {
+            if (!sounds.isInitialized) {
+                sounds.init();
+            }
+        }, { once: true });
+
         updateUI();
     </script>
 </body>
