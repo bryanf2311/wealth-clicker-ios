@@ -25,15 +25,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
+            padding: 1rem 0 2rem;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             background-image: 
                 radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
             color: var(--text-main);
-            overflow: hidden;
         }
 
         #game-container {
@@ -52,7 +52,7 @@
         }
 
         #money-icon {
-            font-size: 100px;
+            font-size: 90px;
             cursor: pointer;
             user-select: none;
             -webkit-user-select: none;
@@ -67,7 +67,7 @@
         }
 
         #score-container {
-            font-size: 3rem;
+            font-size: 2.6rem;
             margin: 1rem 0;
             font-weight: 800;
             letter-spacing: -0.025em;
@@ -108,61 +108,78 @@
 
         .shop {
             margin-top: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
         }
 
         .upgrade-btn {
-            padding: 1rem;
-            border: none;
+            padding: 0.8rem 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 1rem;
             background: var(--card-bg);
             color: var(--text-main);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            text-align: left;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            gap: 0.15rem;
+            text-align: center;
         }
 
-        .upgrade-btn:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
+        .upgrade-btn:not(:disabled) {
+            border-color: rgba(251, 191, 36, 0.35);
+            box-shadow: inset 0 0 14px rgba(251, 191, 36, 0.07);
         }
 
         .upgrade-btn:active:not(:disabled) {
-            transform: scale(0.97);
+            transform: scale(0.94);
         }
 
         .upgrade-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.45;
             filter: grayscale(1);
             cursor: not-allowed;
         }
 
-        .upgrade-info {
-            display: flex;
-            flex-direction: column;
+        .upgrade-icon {
+            font-size: 1.5rem;
+            line-height: 1.1;
         }
 
         .upgrade-name {
-            font-weight: 600;
-            font-size: 1rem;
+            font-weight: 700;
+            font-size: 0.8rem;
         }
 
         .upgrade-subtext {
-            font-size: 0.75rem;
+            font-size: 0.68rem;
             color: var(--text-muted);
+        }
+
+        .upgrade-bottom {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-top: 0.25rem;
         }
 
         .upgrade-cost {
             font-weight: 700;
             color: var(--accent-color);
             font-family: monospace;
-            font-size: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .upgrade-count {
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: rgba(251, 191, 36, 0.15);
+            color: var(--accent-color);
+            padding: 2px 7px;
+            border-radius: 1rem;
+            display: none;
         }
 
         .sale-text {
@@ -193,21 +210,16 @@
 
         /* Settings UI */
         #settings-toggle {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
+            margin-top: 1.5rem;
             background: var(--card-bg);
-            border: none;
-            color: var(--text-main);
-            font-size: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
             cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+            width: 100%;
         }
 
         #settings-modal {
@@ -300,8 +312,6 @@
 <body>
 
     <div id="game-container">
-        <button id="settings-toggle">⚙️</button>
-
         <div id="settings-modal">
             <div class="modal-content">
                 <h2 style="margin-top:0">Settings</h2>
@@ -342,61 +352,56 @@
 
         <div class="shop">
             <button class="upgrade-btn" id="upgrade-training">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Training</span>
-                    <span class="upgrade-subtext">+$1/click</span>
-                </div>
-                <span class="upgrade-cost">$15</span>
+                <span class="upgrade-icon">🎓</span>
+                <span class="upgrade-name">Training</span>
+                <span class="upgrade-subtext">+$1/click</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$15</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-worker">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Worker</span>
-                    <span class="upgrade-subtext">+$1/sec</span>
-                </div>
-                <span class="upgrade-cost">$100</span>
+                <span class="upgrade-icon">👷</span>
+                <span class="upgrade-name">Worker</span>
+                <span class="upgrade-subtext">+$1/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$100</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-manager">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Manager</span>
-                    <span class="upgrade-subtext">+$5/sec</span>
-                </div>
-                <span class="upgrade-cost">$500</span>
+                <span class="upgrade-icon">💼</span>
+                <span class="upgrade-name">Manager</span>
+                <span class="upgrade-subtext">+$5/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$500</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-bank">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Bank</span>
-                    <span class="upgrade-subtext">+$25/sec</span>
-                </div>
-                <span class="upgrade-cost">$2500</span>
+                <span class="upgrade-icon">🏦</span>
+                <span class="upgrade-name">Bank</span>
+                <span class="upgrade-subtext">+$25/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$2500</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-real_estate">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Real Estate</span>
-                    <span class="upgrade-subtext">+$100/sec</span>
-                </div>
-                <span class="upgrade-cost">$15000</span>
+                <span class="upgrade-icon">🏙️</span>
+                <span class="upgrade-name">Real Estate</span>
+                <span class="upgrade-subtext">+$100/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$15000</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-hedge_fund">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Hedge Fund</span>
-                    <span class="upgrade-subtext">+$500/sec</span>
-                </div>
-                <span class="upgrade-cost">$100000</span>
+                <span class="upgrade-icon">📈</span>
+                <span class="upgrade-name">Hedge Fund</span>
+                <span class="upgrade-subtext">+$500/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$100000</span><span class="upgrade-count">x0</span></span>
             </button>
             <button class="upgrade-btn" id="upgrade-monopoly">
-                <div class="upgrade-info">
-                    <span class="upgrade-name">Monopoly</span>
-                    <span class="upgrade-subtext">+$5000/sec</span>
-                </div>
-                <span class="upgrade-cost">$1000000</span>
+                <span class="upgrade-icon">👑</span>
+                <span class="upgrade-name">Monopoly</span>
+                <span class="upgrade-subtext">+$5000/sec</span>
+                <span class="upgrade-bottom"><span class="upgrade-cost">$1000000</span><span class="upgrade-count">x0</span></span>
             </button>
         </div>
 
-        <div id="prestige-container" style="margin-top: 2rem; display: none;">
+        <div id="prestige-container" style="margin-top: 1.25rem; display: none;">
             <button id="btn-prestige" style="padding: 1rem 2rem; background: var(--accent-color); color: #000; border: none; border-radius: 1rem; font-weight: bold; cursor: pointer; width: 100%;">
                 Buyout for <span id="prestige-gain">$0</span> (Bonus: x<span id="prestige-mult">1</span>)
             </button>
         </div>
+
+        <button id="settings-toggle">⚙️ Settings</button>
     </div>
 
     <script>
@@ -515,6 +520,26 @@
 
         const sounds = new SoundManager();
 
+        function haptic(style) {
+            try {
+                if (window.webkit && webkit.vibrate) {
+                    webkit.vibrate('haptics', { impactStyle: style || 'medium' });
+                } else if (navigator.vibrate) {
+                    navigator.vibrate(style === 'heavy' ? 50 : 25);
+                }
+            } catch (e) {}
+        }
+
+        function hapticBuyout() {
+            try {
+                if (window.webkit && webkit.vibrate) {
+                    webkit.vibrate('notification', { notificationType: 'success' });
+                } else if (navigator.vibrate) {
+                    navigator.vibrate([60, 40, 90]);
+                }
+            } catch (e) {}
+        }
+
         let state = {
             money: 0,
             mpc: 1,
@@ -594,16 +619,25 @@
             upgrades.forEach(upg => {
                 const btn = document.getElementById(`upgrade-${upg.id}`);
                 const costSpan = btn.querySelector('.upgrade-cost');
+                const countSpan = btn.querySelector('.upgrade-count');
                 const cost = getEffectiveCost(upg);
-                
-                costSpan.textContent = `$${cost}`;
-                
+                const owned = state.upgradesOwned[upg.id];
+
+                costSpan.textContent = `$${cost.toLocaleString()}`;
+
                 if (state.isSaleActive) {
                     costSpan.classList.add('sale-text');
                 } else {
                     costSpan.classList.remove('sale-text');
                 }
-                
+
+                if (owned > 0) {
+                    countSpan.textContent = `x${owned}`;
+                    countSpan.style.display = 'inline-block';
+                } else {
+                    countSpan.style.display = 'none';
+                }
+
                 btn.disabled = state.money < cost;
             });
 
@@ -620,9 +654,7 @@
             state.money += effectiveMpc;
             createFloatingText(e.clientX, e.clientY, Math.floor(effectiveMpc));
             sounds.playClick();
-            if (navigator.vibrate) {
-                navigator.vibrate(15);
-            }
+            haptic('heavy');
             updateUI();
         });
 
@@ -640,9 +672,7 @@
                         state.mps += upg.value;
                     }
                     sounds.playMoney();
-                    if (navigator.vibrate) {
-                        navigator.vibrate(10);
-                    }
+                    haptic('medium');
                     updateUI();
                 }
             });
@@ -669,9 +699,7 @@
                 state.upgradesOwned[key] = 0;
             }
             sounds.playBuyout();
-            if (navigator.vibrate) {
-                navigator.vibrate([30, 50, 60]);
-            }
+            hapticBuyout();
             updateUI();
         }
 
