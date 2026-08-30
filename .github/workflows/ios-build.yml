@@ -24,26 +24,50 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
+      - name: Find Workspace
+        id: find_workspace
+        run: |
+          WORKSPACE=$(find ios -name "*.xcworkspace" | head -n 1)
+          if [ -z "$WORKSPACE" ]; then
+            echo "Workspace not found!"
+            exit 1
+          fi
+          echo "workspace=$WORKSPACE" >> $GITHUB_OUTPUT
+          echo "Found workspace at: $WORKSPACE"
+
       - name: Build iOS Archive
         run: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace \
+          xcodebuild -workspace ${{ steps.find_workspace.outputs.workspace }} \
             -scheme App \
             -configuration Release \
             -archivePath App.xcarchive \
             archive
 
+      - name: Create Export Options
+        run: |
+          cat <<EOF > exportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>ad-hoc</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+          </dict>
+          </plist>
+          EOF
+
       - name: Export IPA
         run: |
           xcodebuild -exportArchive \
-            -archivePath ios/App/App.xcarchive \
+            -archivePath App.xcarchive \
             -exportOptionsPlist exportOptions.plist \
-            -output App.ipa || echo "Skipping IPA export (requires provisioning profiles)"
+            -output App.ipa || echo "Export failed, but archive was created."
             
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-app
           path: |
-            *.ipa
-            *.xcarchive
+            App.ipa
+            App.xcarchive
