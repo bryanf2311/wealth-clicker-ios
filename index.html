@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wealth Clicker</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --container-bg: rgba(30, 41, 59, 0.7);
+            --accent-color: #fbbf24;
+            --success-color: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --sale-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        #game-container {
+            text-align: center;
+            background: var(--container-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 2.5rem 2rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+        }
+
+        #money-icon {
+            font-size: 100px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.3));
+        }
+
+        #money-icon:active {
+            transform: scale(0.85) rotate(-5deg);
+        }
+
+        #score-container {
+            font-size: 3rem;
+            margin: 1rem 0;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            color: var(--accent-color);
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        #stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 1rem;
+        }
+
+        #sale-banner {
+            display: none;
+            background: var(--sale-color);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .shop {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .upgrade-btn {
+            padding: 1rem;
+            border: none;
+            border-radius: 1rem;
+            background: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .upgrade-btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .upgrade-btn:disabled {
+            opacity: 0.5;
+            filter: grayscale(1);
+            cursor: not-allowed;
+        }
+
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upgrade-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .upgrade-subtext {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .upgrade-cost {
+            font-weight: 700;
+            color: var(--accent-color);
+            font-family: monospace;
+            font-size: 1rem;
+        }
+
+        .sale-text {
+            color: var(--sale-color);
+            animation: flash 0.5s infinite alternate;
+        }
+
+        @keyframes flash {
+            from { opacity: 1; }
+            to { opacity: 0.6; }
+        }
+
+        /* Floating Text Effect */
+        .floating-text {
+            position: absolute;
+            pointer-events: none;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="sale-banner">🔥 50% OFF! (<span id="sale-timer">0</span>s) 🔥</div>
+        
+        <div id="score-container">$<span id="money">0</span></div>
+        
+        <div id="stats">
+            <div><span style="color: var(--text-muted)">/sec:</span> <span id="mps-display">0</span></div>
+            <div><span style="color: var(--text-muted)">/click:</span> <span id="mpc-display">1</span></div>
+        </div>
+
+        <div id="money-icon">💰</div>
+
+        <div class="shop">
+            <button class="upgrade-btn" id="upgrade-training">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Training</span>
+                    <span class="upgrade-subtext">+$1/click</span>
+                </div>
+                <span class="upgrade-cost">$15</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-worker">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Worker</span>
+                    <span class="upgrade-subtext">+$1/sec</span>
+                </div>
+                <span class="upgrade-cost">$100</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-manager">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Manager</span>
+                    <span class="upgrade-subtext">+$5/sec</span>
+                </div>
+                <span class="upgrade-cost">$500</span>
+            </button>
+            <button class="upgrade-btn" id="upgrade-bank">
+                <div class="upgrade-info">
+                    <span class="upgrade-name">Bank</span>
+                    <span class="upgrade-subtext">+$25/sec</span>
+                </div>
+                <span class="upgrade-cost">$2500</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            money: 0,
+            mpc: 1,
+            mps: 0,
+            upgradesOwned: {
+                'training': 0,
+                'worker': 0,
+                'manager': 0,
+                'bank': 0
+            },
+            isSaleActive: false,
+            saleDiscount: 0.5,
+            saleTimeRemaining: 0
+        };
+
+        const upgrades = [
+            { id: 'training', baseCost: 15, type: 'mpc', value: 1 },
+            { id: 'worker', baseCost: 100, type: 'mps', value: 1 },
+            { id: 'manager', baseCost: 500, type: 'mps', value: 5 },
+            { id: 'bank', baseCost: 2500, type: 'mps', value: 25 }
+        ];
+
+        const moneyEl = document.getElementById('money');
+        const mpsEl = document.getElementById('mps-display');
+        const mpcEl = document.getElementById('mpc-display');
+        const moneyIconEl = document.getElementById('money-icon');
+        const saleBanner = document.getElementById('sale-banner');
+        const saleTimerEl = document.getElementById('sale-timer');
+
+        function getEffectiveCost(upg) {
+            const baseCost = upg.baseCost * Math.pow(1.2, state.upgradesOwned[upg.id]);
+            return state.isSaleActive ? Math.floor(baseCost * state.saleDiscount) : Math.floor(baseCost);
+        }
+
+        function createFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'floating-text';
+            el.textContent = `+$${text}`;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        function updateUI() {
+            moneyEl.textContent = Math.floor(state.money).toLocaleString();
+            mpsEl.textContent = state.mps.toFixed(1);
+            mpcEl.textContent = state.mpc.toFixed(1);
+
+            upgrades.forEach(upg => {
+                const btn = document.getElementById(`upgrade-${upg.id}`);
+                const costSpan = btn.querySelector('.upgrade-cost');
+                const cost = getEffectiveCost(upg);
+                
+                costSpan.textContent = `$${cost}`;
+                
+                if (state.isSaleActive) {
+                    costSpan.classList.add('sale-text');
+                } else {
+                    costSpan.classList.remove('sale-text');
+                }
+                
+                btn.disabled = state.money < cost;
+            });
+
+            if (state.isSaleActive) {
+                saleBanner.style.display = 'block';
+                saleTimerEl.textContent = state.saleTimeRemaining;
+            } else {
+                saleBanner.style.display = 'none';
+            }
+        }
+
+        moneyIconEl.addEventListener('click', (e) => {
+            state.money += state.mpc;
+            createFloatingText(e.clientX, e.clientY, state.mpc);
+            updateUI();
+        });
+
+        upgrades.forEach(upg => {
+            const btn = document.getElementById(`upgrade-${upg.id}`);
+            btn.addEventListener('click', () => {
+                const cost = getEffectiveCost(upg);
+                if (state.money >= cost) {
+                    state.money -= cost;
+                    state.upgradesOwned[upg.id]++;
+                    
+                    if (upg.type === 'mpc') {
+                        state.mpc += upg.value;
+                    } else {
+                        state.mps += upg.value;
+                    }
+                    updateUI();
+                }
+            });
+        });
+
+        setInterval(() => {
+            if (state.mps > 0) {
+                state.money += state.mps / 10;
+                updateUI();
+            }
+        }, 100);
+
+        function triggerSale() {
+            if (state.isSaleActive) return;
+            state.isSaleActive = true;
+            state.saleTimeRemaining = 15;
+            updateUI();
+
+            const saleTimer = setInterval(() => {
+                state.saleTimeRemaining--;
+                if (state.saleTimeRemaining <= 0) {
+                    clearInterval(saleTimer);
+                    state.isSaleActive = false;
+                    updateUI();
+                } else {
+                    updateUI();
+                }
+            }, 1000);
+        }
+
+        function scheduleNextSale() {
+            const nextSaleIn = Math.floor(Math.random() * 30) + 20;
+            setTimeout(() => {
+                triggerSale();
+                scheduleNextSale();
+            }, nextSaleIn * 1000);
+        }
+
+        scheduleNextSale();
+        updateUI();
+    </script>
+</body>
+</html>
