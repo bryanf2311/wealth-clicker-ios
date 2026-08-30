@@ -644,7 +644,17 @@ License URL: https://creativecommons.org/licenses/by/4.0/
 
         const sounds = new SoundManager();
 
+        let nativeHaptics = null;
+        try {
+            if (window.Capacitor && typeof window.Capacitor.registerPlugin === 'function') {
+                nativeHaptics = window.Capacitor.registerPlugin('Haptics');
+            }
+        } catch (e) {}
+
         function haptic(style) {
+            if (nativeHaptics && nativeHaptics.impact) {
+                try { nativeHaptics.impact({ style: style || 'heavy' }); return; } catch (e) {}
+            }
             try {
                 if (window.webkit && webkit.vibrate) {
                     webkit.vibrate('haptics', { impactStyle: style || 'rigid' });
@@ -655,6 +665,9 @@ License URL: https://creativecommons.org/licenses/by/4.0/
         }
 
         function hapticBuyout() {
+            if (nativeHaptics && nativeHaptics.notify) {
+                try { nativeHaptics.notify({ type: 'success' }); return; } catch (e) {}
+            }
             try {
                 if (window.webkit && webkit.vibrate) {
                     webkit.vibrate('notification', { notificationType: 'success' });

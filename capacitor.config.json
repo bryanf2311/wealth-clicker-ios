@@ -1,5 +1,8 @@
 {
   "appId": "com.example.wealthclicker",
   "appName": "Wealth Clicker",
-  "webDir": "www"
+  "webDir": "www",
+  "packageClassList": [
+    "AppHapticsPlugin"
+  ]
 }
