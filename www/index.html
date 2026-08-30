@@ -1,4 +1,9 @@
 <!DOCTYPE html>
+<!--
+Music: "Calmant" by Kevin MacLeod (incompetech.com),
+licensed under Creative Commons: By Attribution 4.0
+License URL: https://creativecommons.org/licenses/by/4.0/
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,15 +30,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             min-height: 100vh;
             margin: 0;
-            padding: 1rem 0 2rem;
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
             color: var(--text-main);
+            overflow: hidden;
         }
 
         #game-container {
@@ -41,49 +46,67 @@
             background: var(--container-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            padding: 2.5rem 2rem;
+            padding: 2rem 1.75rem 2.5rem;
             border-radius: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            width: 90%;
+            width: 92%;
             max-width: 420px;
             position: relative;
             z-index: 1;
         }
 
-        #money-icon {
-            font-size: 90px;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(251, 191, 36, 0.3));
-        }
-
-        #money-icon:active {
-            transform: scale(0.85) rotate(-5deg);
-        }
-
         #score-container {
-            font-size: 2.6rem;
-            margin: 1rem 0;
+            font-size: 4rem;
+            margin: 0.5rem 0 1rem;
             font-weight: 800;
             letter-spacing: -0.025em;
             color: var(--accent-color);
-            text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+            text-shadow: 0 0 24px rgba(251, 191, 36, 0.35);
         }
 
         #stats {
             display: flex;
             justify-content: space-between;
             margin-bottom: 1.5rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-muted);
             background: var(--card-bg);
-            padding: 0.75rem 1rem;
+            padding: 0.6rem 1rem;
             border-radius: 1rem;
+        }
+
+        #money-icon {
+            font-size: 150px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+            filter: drop-shadow(0 0 24px rgba(251, 191, 36, 0.35));
+            margin: 0.5rem 0 1.25rem;
+        }
+
+        #money-icon:active {
+            transform: scale(0.88) rotate(-5deg);
+        }
+
+        #store-toggle {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.9), rgba(251, 191, 36, 0.7));
+            color: #0f172a;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(251, 191, 36, 0.25);
+        }
+
+        #store-toggle:active {
+            transform: scale(0.97);
         }
 
         #sale-banner {
@@ -96,7 +119,7 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             animation: pulse 1.5s infinite;
         }
 
@@ -106,8 +129,60 @@
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
+        /* Store overlay (translucent so the game shows through) */
+        #store-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.75rem 1.25rem 1.75rem;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .store-header {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .store-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        #close-store {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .store-body {
+            width: 100%;
+            max-width: 420px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.9rem;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 0.5rem 0;
+        }
+
         .shop {
-            margin-top: 1.5rem;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.6rem;
@@ -192,52 +267,50 @@
             to { opacity: 0.6; }
         }
 
-        /* Floating Text Effect */
-        .floating-text {
-            position: absolute;
-            pointer-events: none;
-            color: var(--accent-color);
-            font-weight: bold;
-            font-size: 1.5rem;
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 100;
+        #prestige-container {
+            display: none;
         }
 
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-100px); opacity: 0; }
+        #btn-prestige {
+            padding: 0.9rem 1rem;
+            background: var(--accent-color);
+            color: #0f172a;
+            border: none;
+            border-radius: 1rem;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
         }
 
-        /* Settings UI */
+        #btn-prestige:active {
+            transform: scale(0.97);
+        }
+
         #settings-toggle {
-            margin-top: 1.5rem;
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.06);
             color: var(--text-muted);
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            padding: 0.75rem 1rem;
+            padding: 0.7rem 1rem;
             border-radius: 1rem;
             width: 100%;
         }
 
+        /* Settings modal */
         #settings-modal {
             display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed;
+            inset: 0;
+            z-index: 40;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
-            z-index: 20;
-            border-radius: 2rem;
-            padding: 2rem;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 2rem;
         }
 
         .modal-content {
@@ -245,6 +318,7 @@
             padding: 2rem;
             border-radius: 1.5rem;
             width: 100%;
+            max-width: 380px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
@@ -307,41 +381,31 @@
             cursor: pointer;
             width: 100%;
         }
+
+        /* Floating Text Effect */
+        .floating-text {
+            position: fixed;
+            pointer-events: none;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.6rem;
+            animation: floatUp 0.8s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100px); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
     <div id="game-container">
-        <div id="settings-modal">
-            <div class="modal-content">
-                <h2 style="margin-top:0">Settings</h2>
-
-                <div class="settings-row">
-                    <label>Sound</label>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="sound-toggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="settings-row">
-                    <label>Music</label>
-                    <input type="range" id="music-volume" min="0" max="1" step="0.1" value="0.3">
-                </div>
-
-                <div class="settings-row">
-                    <label>SFX</label>
-                    <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
-                </div>
-
-                <button id="close-settings">Close</button>
-            </div>
-        </div>
-
         <div id="sale-banner">🔥 50% OFF! (<span id="sale-timer">0</span>s) 🔥</div>
-        
+
         <div id="score-container">$<span id="money">0</span></div>
-        
+
         <div id="stats">
             <div><span style="color: var(--text-muted)">/sec:</span> <span id="mps-display">0</span></div>
             <div><span style="color: var(--text-muted)">/click:</span> <span id="mpc-display">1</span></div>
@@ -350,58 +414,95 @@
 
         <div id="money-icon">💰</div>
 
-        <div class="shop">
-            <button class="upgrade-btn" id="upgrade-training">
-                <span class="upgrade-icon">🎓</span>
-                <span class="upgrade-name">Training</span>
-                <span class="upgrade-subtext">+$1/click</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$15</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-worker">
-                <span class="upgrade-icon">👷</span>
-                <span class="upgrade-name">Worker</span>
-                <span class="upgrade-subtext">+$1/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$100</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-manager">
-                <span class="upgrade-icon">💼</span>
-                <span class="upgrade-name">Manager</span>
-                <span class="upgrade-subtext">+$5/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$500</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-bank">
-                <span class="upgrade-icon">🏦</span>
-                <span class="upgrade-name">Bank</span>
-                <span class="upgrade-subtext">+$25/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$2500</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-real_estate">
-                <span class="upgrade-icon">🏙️</span>
-                <span class="upgrade-name">Real Estate</span>
-                <span class="upgrade-subtext">+$100/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$15000</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-hedge_fund">
-                <span class="upgrade-icon">📈</span>
-                <span class="upgrade-name">Hedge Fund</span>
-                <span class="upgrade-subtext">+$500/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$100000</span><span class="upgrade-count">x0</span></span>
-            </button>
-            <button class="upgrade-btn" id="upgrade-monopoly">
-                <span class="upgrade-icon">👑</span>
-                <span class="upgrade-name">Monopoly</span>
-                <span class="upgrade-subtext">+$5000/sec</span>
-                <span class="upgrade-bottom"><span class="upgrade-cost">$1000000</span><span class="upgrade-count">x0</span></span>
-            </button>
+        <button id="store-toggle">🛒 Store</button>
+    </div>
+
+    <div id="store-overlay">
+        <div class="store-header">
+            <h2>Shop</h2>
+            <button id="close-store">✕</button>
         </div>
 
-        <div id="prestige-container" style="margin-top: 1.25rem; display: none;">
-            <button id="btn-prestige" style="padding: 1rem 2rem; background: var(--accent-color); color: #000; border: none; border-radius: 1rem; font-weight: bold; cursor: pointer; width: 100%;">
-                Buyout for <span id="prestige-gain">$0</span> (Bonus: x<span id="prestige-mult">1</span>)
-            </button>
-        </div>
+        <div class="store-body">
+            <div class="shop">
+                <button class="upgrade-btn" id="upgrade-training">
+                    <span class="upgrade-icon">🎓</span>
+                    <span class="upgrade-name">Training</span>
+                    <span class="upgrade-subtext">+$1/click</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$15</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-worker">
+                    <span class="upgrade-icon">👷</span>
+                    <span class="upgrade-name">Worker</span>
+                    <span class="upgrade-subtext">+$1/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$100</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-manager">
+                    <span class="upgrade-icon">💼</span>
+                    <span class="upgrade-name">Manager</span>
+                    <span class="upgrade-subtext">+$5/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$500</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-bank">
+                    <span class="upgrade-icon">🏦</span>
+                    <span class="upgrade-name">Bank</span>
+                    <span class="upgrade-subtext">+$25/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$2500</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-real_estate">
+                    <span class="upgrade-icon">🏙️</span>
+                    <span class="upgrade-name">Real Estate</span>
+                    <span class="upgrade-subtext">+$100/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$15000</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-hedge_fund">
+                    <span class="upgrade-icon">📈</span>
+                    <span class="upgrade-name">Hedge Fund</span>
+                    <span class="upgrade-subtext">+$500/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$100000</span><span class="upgrade-count">x0</span></span>
+                </button>
+                <button class="upgrade-btn" id="upgrade-monopoly">
+                    <span class="upgrade-icon">👑</span>
+                    <span class="upgrade-name">Monopoly</span>
+                    <span class="upgrade-subtext">+$5000/sec</span>
+                    <span class="upgrade-bottom"><span class="upgrade-cost">$1000000</span><span class="upgrade-count">x0</span></span>
+                </button>
+            </div>
 
-        <button id="settings-toggle">⚙️ Settings</button>
+            <div id="prestige-container">
+                <button id="btn-prestige">
+                    Buyout for <span id="prestige-gain">$0</span> (Bonus: x<span id="prestige-mult">1</span>)
+                </button>
+            </div>
+
+            <button id="settings-toggle">⚙️ Settings</button>
+        </div>
+    </div>
+
+    <div id="settings-modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0">Settings</h2>
+
+            <div class="settings-row">
+                <label>Sound</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="sound-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="settings-row">
+                <label>Music</label>
+                <input type="range" id="music-volume" min="0" max="1" step="0.1" value="0.5">
+            </div>
+
+            <div class="settings-row">
+                <label>SFX</label>
+                <input type="range" id="sfx-volume" min="0" max="1" step="0.1" value="0.7">
+            </div>
+
+            <button id="close-settings">Close</button>
+        </div>
     </div>
 
     <script>
@@ -411,7 +512,11 @@
                 this.ctx = null;
                 this.masterGain = null;
                 this.sfxGain = null;
-                this.musicGain = null;
+                this.musicAudio = null;
+                this.droneGain = null;
+                this.soundEnabled = true;
+                this.musicVol = 0.5;
+                this.sfxVol = 0.7;
                 this.isInitialized = false;
             }
 
@@ -420,32 +525,44 @@
                 this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 this.masterGain = this.ctx.createGain();
                 this.sfxGain = this.ctx.createGain();
-                this.musicGain = this.ctx.createGain();
 
                 this.sfxGain.connect(this.masterGain);
-                this.musicGain.connect(this.masterGain);
                 this.masterGain.connect(this.ctx.destination);
 
-                this.sfxGain.gain.value = 0.7;
-                this.musicGain.gain.value = 0.3;
+                this.sfxGain.gain.value = this.sfxVol;
 
                 this.isInitialized = true;
-                this.startMusic();
+                this.loadMusic();
+            }
+
+            loadMusic() {
+                const a = new Audio('audio/music.mp3');
+                a.loop = true;
+                a.volume = this.musicVol * 0.5;
+                a.play().then(() => {
+                    this.musicAudio = a;
+                }).catch(() => {
+                    this.startDrone();
+                });
+                a.addEventListener('error', () => {
+                    if (!this.musicAudio) this.startDrone();
+                });
             }
 
             playClick() {
                 if (!this.isInitialized) return;
+                const t = this.ctx.currentTime;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(150, t);
+                osc.frequency.exponentialRampToValueAtTime(40, t + 0.12);
+                gain.gain.setValueAtTime(0.5, t);
+                gain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
                 osc.connect(gain);
                 gain.connect(this.sfxGain);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
+                osc.start(t);
+                osc.stop(t + 0.16);
             }
 
             playMoney() {
@@ -482,39 +599,46 @@
                 });
             }
 
-            startMusic() {
-                if (!this.isInitialized) return;
-                const playTone = (freq, detune, duration) => {
+            startDrone() {
+                if (!this.isInitialized || this.droneGain) return;
+                const droneGain = this.ctx.createGain();
+                droneGain.gain.value = this.musicVol * 0.15;
+                droneGain.connect(this.masterGain);
+                const playTone = (freq, duration) => {
                     const osc = this.ctx.createOscillator();
                     const gain = this.ctx.createGain();
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                    osc.detune.setValueAtTime(detune, this.ctx.currentTime);
-
                     gain.gain.setValueAtTime(0.02, this.ctx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.03, this.ctx.currentTime + duration/2);
+                    gain.gain.linearRampToValueAtTime(0.03, this.ctx.currentTime + duration / 2);
                     gain.gain.linearRampToValueAtTime(0.02, this.ctx.currentTime + duration);
-
                     osc.connect(gain);
-                    gain.connect(this.musicGain);
+                    gain.connect(droneGain);
                     osc.start();
                     osc.stop(this.ctx.currentTime + duration);
                 };
-
                 const loop = () => {
                     if (!this.isInitialized) return;
-                    playTone(110, 0, 4);
-                    playTone(115, 0, 4);
+                    playTone(110, 4);
+                    playTone(115, 4);
                     setTimeout(() => loop(), 4000);
                 };
                 loop();
+                this.droneGain = droneGain;
             }
 
             updateVolumes(sfxVol, musicVol, soundEnabled) {
+                this.sfxVol = sfxVol;
+                this.musicVol = musicVol;
+                this.soundEnabled = soundEnabled;
                 if (!this.isInitialized) return;
                 const multiplier = soundEnabled ? 1 : 0;
                 this.sfxGain.gain.setTargetAtTime(sfxVol * multiplier, this.ctx.currentTime, 0.1);
-                this.musicGain.gain.setTargetAtTime(musicVol * multiplier, this.ctx.currentTime, 0.1);
+                if (this.musicAudio) {
+                    this.musicAudio.volume = 0.5 * musicVol * multiplier;
+                } else if (this.droneGain) {
+                    this.droneGain.gain.setTargetAtTime(musicVol * multiplier * 0.15, this.ctx.currentTime, 0.1);
+                }
             }
         }
 
@@ -523,9 +647,9 @@
         function haptic(style) {
             try {
                 if (window.webkit && webkit.vibrate) {
-                    webkit.vibrate('haptics', { impactStyle: style || 'medium' });
+                    webkit.vibrate('haptics', { impactStyle: style || 'rigid' });
                 } else if (navigator.vibrate) {
-                    navigator.vibrate(style === 'heavy' ? 50 : 25);
+                    navigator.vibrate(40);
                 }
             } catch (e) {}
         }
@@ -576,6 +700,9 @@
         const moneyIconEl = document.getElementById('money-icon');
         const saleBanner = document.getElementById('sale-banner');
         const saleTimerEl = document.getElementById('sale-timer');
+        const storeOverlay = document.getElementById('store-overlay');
+        const storeToggle = document.getElementById('store-toggle');
+        const closeStore = document.getElementById('close-store');
         const prestigeContainer = document.getElementById('prestige-container');
         const btnPrestige = document.getElementById('btn-prestige');
         const prestigeGainEl = document.getElementById('prestige-gain');
@@ -654,7 +781,7 @@
             state.money += effectiveMpc;
             createFloatingText(e.clientX, e.clientY, Math.floor(effectiveMpc));
             sounds.playClick();
-            haptic('heavy');
+            haptic('rigid');
             updateUI();
         });
 
@@ -665,14 +792,14 @@
                 if (state.money >= cost) {
                     state.money -= cost;
                     state.upgradesOwned[upg.id]++;
-                    
+
                     if (upg.type === 'mpc') {
                         state.mpc += upg.value;
                     } else {
                         state.mps += upg.value;
                     }
                     sounds.playMoney();
-                    haptic('medium');
+                    haptic('heavy');
                     updateUI();
                 }
             });
@@ -733,6 +860,15 @@
 
         scheduleNextSale();
 
+        // Store overlay
+        storeToggle.addEventListener('click', () => {
+            storeOverlay.style.display = 'flex';
+        });
+
+        closeStore.addEventListener('click', () => {
+            storeOverlay.style.display = 'none';
+        });
+
         // UI elements for settings
         const settingsBtn = document.getElementById('settings-toggle');
         const settingsModal = document.getElementById('settings-modal');
@@ -741,7 +877,6 @@
         const musicVolSlider = document.getElementById('music-volume');
         const sfxVolSlider = document.getElementById('sfx-volume');
 
-        // Settings Logic
         settingsBtn.addEventListener('click', () => {
             settingsModal.style.display = 'flex';
         });
