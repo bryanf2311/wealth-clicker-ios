@@ -35,39 +35,20 @@ jobs:
           echo "workspace=$WORKSPACE" >> $GITHUB_OUTPUT
           echo "Found workspace at: $WORKSPACE"
 
-      - name: Build iOS Archive
+      - name: Build iOS Archive (No Signing)
         run: |
           xcodebuild -workspace ${{ steps.find_workspace.outputs.workspace }} \
             -scheme App \
             -configuration Release \
             -archivePath App.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             archive
 
-      - name: Create Export Options
-        run: |
-          cat <<EOF > exportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>ad-hoc</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-          </dict>
-          </plist>
-          EOF
-
-      - name: Export IPA
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath App.xcarchive \
-            -exportOptionsPlist exportOptions.plist \
-            -output App.ipa || echo "Export failed, but archive was created."
-            
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-app
+          name: ios-app-archive
           path: |
-            App.ipa
             App.xcarchive
