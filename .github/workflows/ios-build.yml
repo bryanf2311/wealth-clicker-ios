@@ -1,4 +1,4 @@
-name: Build iOS App
+name: Build IPA
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ios:
+  build:
+    name: Build ad-hoc signed IPA (macOS)
     runs-on: macos-latest
 
     steps:
@@ -24,31 +25,48 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
-      - name: Find Workspace
-        id: find_workspace
+      - name: Build unsigned app for iPhoneOS
         run: |
+          set -euo pipefail
           WORKSPACE=$(find ios -name "*.xcworkspace" | head -n 1)
-          if [ -z "$WORKSPACE" ]; then
-            echo "Workspace not found!"
-            exit 1
-          fi
-          echo "workspace=$WORKSPACE" >> $GITHUB_OUTPUT
-          echo "Found workspace at: $WORKSPACE"
-
-      - name: Build iOS Archive (No Signing)
-        run: |
-          xcodebuild -workspace ${{ steps.find_workspace.outputs.workspace }} \
+          if [ -z "$WORKSPACE" ]; then echo "Workspace not found!"; exit 1; fi
+          
+          xcodebuild \
+            -workspace "$WORKSPACE" \
             -scheme App \
             -configuration Release \
-            -archivePath App.xcarchive \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/derived \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
-            archive
+            clean build
 
-      - name: Upload Artifact
+      - name: Locate built .app
+        id: locate_app
+        run: |
+          set -euo pipefail
+          APP=$(find build/derived -type d -name "App.app" -path '*Release-iphoneos*' | head -n 1)
+          if [ -z "$APP" ]; then echo "App.app not found"; ls -R build/derived; exit 1; fi
+          echo "APP=$APP" >> "$GITHUB_OUTPUT"
+          echo "Found app at: $APP"
+
+      - name: Ad-hoc sign + assemble IPA
+        env:
+          APP_PATH: ${{ steps.locate_app.outputs.APP }}
+        run: |
+          set -euo pipefail
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          codesign --force --sign - --deep --timestamp=none Payload/App.app
+          zip -r wealth-clicker.ipa Payload
+          ls -lh wealth-clicker.ipa
+
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-app-archive
-          path: |
-            App.xcarchive
+          name: wealth-clicker-ipa
+          path: wealth-clicker.ipa
+          if-no-files-found: error
+          retention-days: 14
